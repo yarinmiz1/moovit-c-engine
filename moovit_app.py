@@ -13,7 +13,7 @@ C_FILE = "sort_bus_lines.c"
 
 # Check if we are running on a fresh Streamlit Cloud container
 if not os.path.exists(SO_FILE):
-    st.info("הפעלה ראשונה בענן. מקמפל ספריות C...")
+    st.info("מבצע אתחול שרת ראשוני למערכת...")
     try:
         # Run the exact GCC command to compile the shared library
         subprocess.run(
@@ -22,12 +22,12 @@ if not os.path.exists(SO_FILE):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
-        st.success("הספרייה קומפלה בהצלחה!")
+        st.success("אתחול שרת הושלם בהצלחה!")
     except subprocess.CalledProcessError as e:
-        st.error(f"שגיאה בקימפול.\nError: {e.stderr.decode('utf-8')}")
+        st.error(f"שגיאת שרת.\nError: {e.stderr.decode('utf-8')}")
         st.stop()
     except FileNotFoundError:
-        st.error("לא נמצא מהדר GCC.")
+        st.error("שגיאת מערכת - רכיב חסר.")
         st.stop()
 
 # Now it is completely safe to import the wrapper, as libsortbus.so is guaranteed to exist
@@ -137,7 +137,6 @@ if 'luggage_unassigned' not in st.session_state:
     init_luggage()
 
 def move_luggage(item, direction):
-    # Remove from current location
     if item in st.session_state.luggage_unassigned:
         st.session_state.luggage_unassigned.remove(item)
     elif item in st.session_state.luggage_left:
@@ -145,7 +144,6 @@ def move_luggage(item, direction):
     elif item in st.session_state.luggage_right:
         st.session_state.luggage_right.remove(item)
         
-    # Append to new location
     if direction == 'left':
         st.session_state.luggage_left.append(item)
     elif direction == 'right':
@@ -177,7 +175,7 @@ def buy_tycoon_upgrade():
 # ======================================================================
 # STREAMLIT UI - HEBREW RTL & MODERN CSS
 # ======================================================================
-st.set_page_config(page_title="Moovit מנוע C", layout="centered")
+st.set_page_config(page_title="Moovit ישראל", layout="centered")
 
 st.markdown("""
 <style>
@@ -244,15 +242,15 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🚌 Moovit: מנוע C מתקדם")
+st.title("🚌 Moovit ישראל - תכנון מסלולים חכם")
 
-tab1, tab2 = st.tabs(["🚏 חיפוש מסלולים (C-Engine)", "🎮 ארקייד ונקודות (6 משחקים)"])
+tab1, tab2 = st.tabs(["🚏 חיפוש מסלולים", "🎮 הטבות ומשחקים"])
 
 # ----------------------------------------------------------------------
-# TAB 1: C-ENGINE ROUTE SORTING
+# TAB 1: ROUTE SORTING
 # ----------------------------------------------------------------------
 with tab1:
-    st.markdown("ממשק זה מריץ פייתון, אך כל הלוגיקה הכבדה של מיון הקווים מתבצעת ברקע על ידי מנוע C טבעי ומהיר!")
+    st.markdown("ברוכים הבאים למערכת תכנון המסלולים המתקדמת בישראל. בחר את המסלול המהיר, הנוח או הקצר ביותר ליעד שלך.")
 
     nationwide_buses = [
         {"name": "480_ת\"א_י-ם", "distance": 65, "duration": 60, "frequency": 120},
@@ -297,47 +295,48 @@ with tab1:
         return df
 
     st.subheader("🌍 מסד נתונים ארצי")
-    st.markdown(f"**במערכת נטענו כעת {len(nationwide_buses)} קווים בפריסה ארצית.**")
+    st.markdown(f"**מעודכן בזמן אמת: {len(nationwide_buses)} קווים זמינים בפריסה ארצית.**")
 
-    st.subheader("📋 קווים זמינים (לפני מיון)")
+    st.subheader("📋 קווים פעילים כעת")
     st.dataframe(format_buses_for_display(nationwide_buses), use_container_width=True)
 
     st.divider()
-    st.subheader("⚡ מיון מואץ-חומרה")
+    st.subheader("⚡ סינון וחיפוש מתקדם")
     sort_options = {
-        "מרחק": "distance",
-        "זמן נסיעה": "duration",
-        "תדירות": "frequency",
-        "שם הקו": "name"
+        "סנן לפי מרחק": "distance",
+        "סנן לפי זמן נסיעה": "duration",
+        "סנן לפי תדירות": "frequency",
+        "סנן לפי שם הקו": "name"
     }
 
-    selected_label = st.selectbox("בחר מדד למיון הקווים:", list(sort_options.keys()))
+    selected_label = st.selectbox("בחר כיצד תרצה לסנן את המסלולים:", list(sort_options.keys()))
     sort_method = sort_options[selected_label]
 
-    if st.button("מיין באמצעות מנוע C", type="primary", key="btn_sort"):
-        with st.spinner('ניגש לזיכרון ה-Shared Object...'):
+    if st.button("החל סינון חכם", type="primary", key="btn_sort"):
+        with st.spinner('מחשב את המסלולים הטובים ביותר...'):
             try:
                 if sort_method == "name":
                     sorted_buses = bus_wrapper.sort_bus_lines_by_name(nationwide_buses)
                 else:
                     sorted_buses = bus_wrapper.sort_bus_lines_by_metric(nationwide_buses, sort_method)
                 
-                st.success(f"המיון עבר בהצלחה לפי {selected_label} במהירות שיא!")
+                st.success(f"התוצאות סוננו בהצלחה לפי דרישתך.")
                 st.dataframe(format_buses_for_display(sorted_buses), use_container_width=True)
                 
                 if sort_method != "name":
-                    st.subheader(f"📊 תצוגה גרפית: {selected_label}")
+                    st.subheader("📊 תצוגה גרפית של הנתונים")
                     chart_data = {bus["name"]: bus[sort_method] for bus in sorted_buses}
                     st.bar_chart(chart_data)
             except Exception as e:
-                st.error(f"שגיאה במהלך המיון: {e}")
+                st.error(f"שגיאת מערכת. אנא נסה שוב מאוחר יותר: {e}")
 
 
 # ----------------------------------------------------------------------
-# TAB 2: GAMES & REWARDS (ARCADE)
+# TAB 2: GAMES & REWARDS
 # ----------------------------------------------------------------------
 with tab2:
-    st.header("🎮 ארקייד Moovit - צבור מטבעות!")
+    st.header("🎁 הטבות Moovit - צבור נקודות!")
+    st.markdown("שחק בזמן הנסיעה, צבור נקודות בארנק הדיגיטלי, ותוכל לזכות בנסיעות חינם או בהטבות בלעדיות למשתמשי האפליקציה.")
     
     col_metric1, col_metric2 = st.columns(2)
     with col_metric1:
@@ -365,7 +364,7 @@ with tab2:
         "5. וורדל תחבורה", 
         "6. איל ההון של אגד (Idle)"
     ]
-    selected_game = st.selectbox("בחר מיני-משחק לשחק:", GAME_OPTIONS)
+    selected_game = st.selectbox("בחר מיני-משחק להעברת הזמן:", GAME_OPTIONS)
     st.divider()
 
     # ==========================================
