@@ -24,7 +24,7 @@
 *שימו לב: לחיצה על כפתורי הסינון וחיפוש המסלולים בממשק מפעילה באופן שקוף וישיר את פונקציות המיון בתוך מנוע ה-C.*
 
 ## 5. כתובת הגיט
-https://github.cs.huji.ac.il/ex2bonus-yarin.mizrachi.git
+https://github.com/yarinmiz1/moovit-c-engine
 
 ---
 
@@ -54,4 +54,4 @@ To run the project on a local machine:
 *Note: Clicking the sorting and route search buttons in the interface transparently and directly triggers the sorting functions within the C engine.*
 
 ## 5. Git URL
-https://github.cs.huji.ac.il/ex2bonus-yarin.mizrachi.git
+https://github.com/yarinmiz1/moovit-c-engine
