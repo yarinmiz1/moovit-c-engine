@@ -247,61 +247,238 @@ st.title("🚌 Moovit ישראל - תכנון מסלולים חכם")
 tab1, tab2 = st.tabs(["🚏 חיפוש מסלולים", "🎮 הטבות ומשחקים"])
 
 # ----------------------------------------------------------------------
-# TAB 1: ROUTE SORTING
+# TAB 1: ROUTE SORTING & PLANNING
 # ----------------------------------------------------------------------
 with tab1:
-    st.markdown("ברוכים הבאים למערכת תכנון המסלולים המתקדמת בישראל. בחר את המסלול המהיר, הנוח או הקצר ביותר ליעד שלך.")
+    st.markdown("ברוכים הבאים למערכת תכנון המסלולים המתקדמת בישראל. בחרו את המסלול המהיר, הנוח או הקצר ביותר ליעד שלכם.")
 
+    # ======================================================================
+    # EXPANDED DATABASE WITH STATIONS
+    # ======================================================================
+    # SECURITY NOTE: The "name" field remains strictly <= 20 bytes (UTF-8) to prevent C buffer overflows!
+    # The new "display_name" field provides the clean "מספר קו - מוצא - יעד" format for the UI.
     nationwide_buses = [
-        {"name": "480_ת\"א_י-ם", "distance": 65, "duration": 60, "frequency": 120},
-        {"name": "405_ת\"א_י-ם", "distance": 63, "duration": 55, "frequency": 110},
-        {"name": "415_בי\"ש_י-ם", "distance": 35, "duration": 45, "frequency": 50},
-        {"name": "947_חיפה_י-ם", "distance": 150, "duration": 180, "frequency": 30},
-        {"name": "910_חיפה_ת\"א", "distance": 95, "duration": 90, "frequency": 40},
-        {"name": "390_ת\"א_אילת", "distance": 350, "duration": 270, "frequency": 15},
-        {"name": "444_י-ם_אילת", "distance": 320, "duration": 260, "frequency": 10},
-        {"name": "392_ב\"ש_אילת", "distance": 240, "duration": 180, "frequency": 12},
-        {"name": "380_ב\"ש_ת\"א", "distance": 110, "duration": 90, "frequency": 50},
-        {"name": "470_ב\"ש_י-ם", "distance": 120, "duration": 100, "frequency": 35},
-        {"name": "826_ת\"א_נצרת", "distance": 105, "duration": 95, "frequency": 25},
-        {"name": "605_נתנ_ת\"א", "distance": 35, "duration": 45, "frequency": 60},
-        {"name": "347_ת\"א_כ\"ס", "distance": 25, "duration": 40, "frequency": 45},
-        {"name": "66_פ\"ת_ת\"א", "distance": 15, "duration": 35, "frequency": 80},
-        {"name": "82_פ\"ת_ת\"א", "distance": 14, "duration": 30, "frequency": 75},
-        {"name": "1_ת\"א_בת-ים", "distance": 12, "duration": 40, "frequency": 150},
-        {"name": "25_ת\"א_חולון", "distance": 10, "duration": 35, "frequency": 90},
-        {"name": "5_ת\"א_מרכז", "distance": 8, "duration": 25, "frequency": 200},
-        {"name": "18_י-ם", "distance": 12, "duration": 45, "frequency": 130},
-        {"name": "15_י-ם", "distance": 10, "duration": 35, "frequency": 100},
-        {"name": "71_י-ם", "distance": 15, "duration": 50, "frequency": 80},
-        {"name": "72_י-ם", "distance": 16, "duration": 55, "frequency": 85},
-        {"name": "14_חיפה", "distance": 12, "duration": 30, "frequency": 60},
-        {"name": "19_חיפה", "distance": 14, "duration": 35, "frequency": 55},
-        {"name": "274_רחובות", "distance": 30, "duration": 55, "frequency": 40},
-        {"name": "301_אשקלון", "distance": 55, "duration": 70, "frequency": 35},
-        {"name": "438_י-ם_אשד", "distance": 65, "duration": 75, "frequency": 20},
-        {"name": "348_אשד_ב\"ש", "distance": 60, "duration": 65, "frequency": 25},
-        {"name": "112_טבריה", "distance": 25, "duration": 40, "frequency": 15}
+        {
+            "name": "480_ת\"א_י-ם", "display_name": "480 - תל אביב - ירושלים",
+            "distance": 65, "duration": 60, "frequency": 120,
+            "stations": ["תל אביב סבידור מרכז", "מסוף ארלוזורוב", "מחלף חמד", "ירושלים תחנה מרכזית"]
+        },
+        {
+            "name": "405_ת\"א_י-ם", "display_name": "405 - תל אביב - ירושלים",
+            "distance": 63, "duration": 55, "frequency": 110,
+            "stations": ["תל אביב תחנה מרכזית חדשה", "צומת חולון", "מחלף חמד", "ירושלים תחנה מרכזית"]
+        },
+        {
+            "name": "415_בי\"ש_י-ם", "display_name": "415 - בית שמש - ירושלים",
+            "distance": 35, "duration": 45, "frequency": 50,
+            "stations": ["בית שמש תחנת רכבת", "מסוף רמת בית שמש", "צומת שמשון", "ירושלים תחנה מרכזית"]
+        },
+        {
+            "name": "947_חיפה_י-ם", "display_name": "947 - חיפה - ירושלים",
+            "distance": 150, "duration": 180, "frequency": 30,
+            "stations": ["מרכזית חוף הכרמל", "מחלף עתלית", "צומת רעננה", "מחלף חמד", "ירושלים תחנה מרכזית"]
+        },
+        {
+            "name": "910_חיפה_ת\"א", "display_name": "910 - חיפה - תל אביב",
+            "distance": 95, "duration": 90, "frequency": 40,
+            "stations": ["מרכזית חוף הכרמל", "מחלף עתלית", "מחלף נתניה", "תל אביב סבידור מרכז", "תל אביב תחנה מרכזית חדשה"]
+        },
+        {
+            "name": "390_ת\"א_אילת", "display_name": "390 - תל אביב - אילת",
+            "distance": 350, "duration": 270, "frequency": 15,
+            "stations": ["תל אביב תחנה מרכזית חדשה", "צומת קסטינה", "באר שבע תחנה מרכזית", "צומת הערבה", "אילת תחנה מרכזית"]
+        },
+        {
+            "name": "444_י-ם_אילת", "display_name": "444 - ירושלים - אילת",
+            "distance": 320, "duration": 260, "frequency": 10,
+            "stations": ["ירושלים תחנה מרכזית", "צומת אלמוג", "עין גדי", "צומת הערבה", "אילת תחנה מרכזית"]
+        },
+        {
+            "name": "392_ב\"ש_אילת", "display_name": "392 - באר שבע - אילת",
+            "distance": 240, "duration": 180, "frequency": 12,
+            "stations": ["באר שבע תחנה מרכזית", "צומת הנגב", "מצפה רמון", "צומת שיזפון", "אילת תחנה מרכזית"]
+        },
+        {
+            "name": "380_ב\"ש_ת\"א", "display_name": "380 - באר שבע - תל אביב",
+            "distance": 110, "duration": 90, "frequency": 50,
+            "stations": ["באר שבע תחנה מרכזית", "צומת קסטינה", "תל אביב סבידור מרכז"]
+        },
+        {
+            "name": "470_ב\"ש_י-ם", "display_name": "470 - באר שבע - ירושלים",
+            "distance": 120, "duration": 100, "frequency": 35,
+            "stations": ["באר שבע תחנה מרכזית", "מחלף קרית גת", "צומת קסטינה", "ירושלים תחנה מרכזית"]
+        },
+        {
+            "name": "826_ת\"א_נצרת", "display_name": "826 - תל אביב - נצרת",
+            "distance": 105, "duration": 95, "frequency": 25,
+            "stations": ["תל אביב תחנה מרכזית חדשה", "תל אביב סבידור מרכז", "צומת יקנעם", "נצרת עילית מסוף"]
+        },
+        {
+            "name": "605_נתנ_ת\"א", "display_name": "605 - נתניה - תל אביב",
+            "distance": 35, "duration": 45, "frequency": 60,
+            "stations": ["נתניה תחנה מרכזית", "מחלף פולג", "מכון וינגייט", "תל אביב סבידור מרכז", "תל אביב תחנה מרכזית חדשה"]
+        },
+        {
+            "name": "347_ת\"א_כ\"ס", "display_name": "347 - תל אביב - כפר סבא",
+            "distance": 25, "duration": 40, "frequency": 45,
+            "stations": ["תל אביב תחנה מרכזית חדשה", "תל אביב סבידור מרכז", "צומת מורשה", "כפר סבא תחנה מרכזית"]
+        },
+        {
+            "name": "66_פ\"ת_ת\"א", "display_name": "66 - פתח תקווה - תל אביב",
+            "distance": 15, "duration": 35, "frequency": 80,
+            "stations": ["פתח תקווה תחנה מרכזית", "בית חולים בילינסון", "רמת גן קניון איילון", "תל אביב מסוף כרמלית"]
+        },
+        {
+            "name": "82_פ\"ת_ת\"א", "display_name": "82 - פתח תקווה - תל אביב",
+            "distance": 14, "duration": 30, "frequency": 75,
+            "stations": ["פתח תקווה תחנה מרכזית", "ציר ז'בוטינסקי בני ברק", "תל אביב סבידור מרכז", "תל אביב מסוף כרמלית"]
+        },
+        {
+            "name": "1_ת\"א_בת-ים", "display_name": "1 - תל אביב - בת ים",
+            "distance": 12, "duration": 40, "frequency": 150,
+            "stations": ["בת ים יוספטל", "יפו העתיקה", "תל אביב אלנבי", "תל אביב סבידור מרכז", "פתח תקווה תחנה מרכזית"]
+        },
+        {
+            "name": "25_ת\"א_חולון", "display_name": "25 - תל אביב - חולון",
+            "distance": 10, "duration": 35, "frequency": 90,
+            "stations": ["חולון מסוף קריית שרת", "חולון כיכר קוגל", "תל אביב יפו", "תל אביב אוניברסיטה"]
+        },
+        {
+            "name": "5_ת\"א_מרכז", "display_name": "5 - תל אביב רכבת מרכז",
+            "distance": 8, "duration": 25, "frequency": 200,
+            "stations": ["תל אביב סבידור מרכז", "תל אביב כיכר המדינה", "תל אביב דיזנגוף סנטר", "תל אביב תחנה מרכזית חדשה"]
+        },
+        {
+            "name": "18_י-ם", "display_name": "18 - ירושלים",
+            "distance": 12, "duration": 45, "frequency": 130,
+            "stations": ["ירושלים מלחה", "ירושלים קטמון", "ירושלים מרכז העיר", "ירושלים תחנה מרכזית"]
+        },
+        {
+            "name": "15_י-ם", "display_name": "15 - ירושלים",
+            "distance": 10, "duration": 35, "frequency": 100,
+            "stations": ["ירושלים תלפיות", "ירושלים רחביה", "ירושלים תחנה מרכזית"]
+        },
+        {
+            "name": "71_י-ם", "display_name": "71 - ירושלים",
+            "distance": 15, "duration": 50, "frequency": 80,
+            "stations": ["ירושלים גילה", "ירושלים דרך חברון", "ירושלים קריית הממשלה", "ירושלים רמות"]
+        },
+        {
+            "name": "72_י-ם", "display_name": "72 - ירושלים",
+            "distance": 16, "duration": 55, "frequency": 85,
+            "stations": ["ירושלים גילה", "ירושלים מרכז העיר", "ירושלים רמות"]
+        },
+        {
+            "name": "14_חיפה", "display_name": "14 - חיפה",
+            "distance": 12, "duration": 30, "frequency": 60,
+            "stations": ["חיפה בת גלים", "חיפה הדר", "חיפה נווה שאנן", "חיפה טכניון"]
+        },
+        {
+            "name": "19_חיפה", "display_name": "19 - חיפה",
+            "distance": 14, "duration": 35, "frequency": 55,
+            "stations": ["חיפה בת גלים", "חיפה הדר", "חיפה אוניברסיטה"]
+        },
+        {
+            "name": "274_רחובות", "display_name": "274 - רחובות - תל אביב",
+            "distance": 30, "duration": 55, "frequency": 40,
+            "stations": ["רחובות תחנה מרכזית", "נס ציונה", "ראשון לציון מרכז", "תל אביב סבידור מרכז", "תל אביב אוניברסיטה"]
+        },
+        {
+            "name": "301_אשקלון", "display_name": "301 - אשקלון - תל אביב",
+            "distance": 55, "duration": 70, "frequency": 35,
+            "stations": ["אשקלון תחנה מרכזית", "אשדוד תחנה מרכזית", "צומת בני דרום", "ראשון לציון מרכז", "תל אביב תחנה מרכזית חדשה"]
+        },
+        {
+            "name": "438_י-ם_אשד", "display_name": "438 - ירושלים - אשדוד",
+            "distance": 65, "duration": 75, "frequency": 20,
+            "stations": ["אשדוד תחנה מרכזית", "צומת חולדה", "מחלף חמד", "ירושלים תחנה מרכזית"]
+        },
+        {
+            "name": "348_אשד_ב\"ש", "display_name": "348 - אשדוד - באר שבע",
+            "distance": 60, "duration": 65, "frequency": 25,
+            "stations": ["אשדוד תחנה מרכזית", "אשקלון צומת סילבר", "קריית גת", "באר שבע תחנה מרכזית"]
+        },
+        {
+            "name": "112_טבריה", "display_name": "112 - טבריה",
+            "distance": 25, "duration": 40, "frequency": 15,
+            "stations": ["טבריה תחנה מרכזית", "צומת גולני", "צומת המוביל", "טבריה שיכון ד"]
+        }
     ]
 
     def format_buses_for_display(buses_list):
-        df = pd.DataFrame(buses_list)
-        df = df.rename(columns={
-            "name": "שם הקו",
-            "distance": "מרחק (ק״מ)",
-            "duration": "זמן נסיעה (דקות)",
-            "frequency": "תדירות (נסיעות)"
-        })
-        return df
+        display_list = []
+        for b in buses_list:
+            display_list.append({
+                "שם הקו": b["display_name"],
+                "מרחק (ק״מ)": b["distance"],
+                "זמן נסיעה (דקות)": b["duration"],
+                "תדירות (נסיעות)": b["frequency"]
+            })
+        return pd.DataFrame(display_list)
 
-    st.subheader("🌍 מסד נתונים ארצי")
-    st.markdown(f"**מעודכן בזמן אמת: {len(nationwide_buses)} קווים זמינים בפריסה ארצית.**")
-
-    st.subheader("📋 קווים פעילים כעת")
-    st.dataframe(format_buses_for_display(nationwide_buses), use_container_width=True)
+    # ----------------------------------------------------------------------
+    # FEATURE 1: TRIP PLANNER (ORIGIN -> DEST)
+    # ----------------------------------------------------------------------
+    st.subheader("🗺️ תכנון נסיעה (חיפוש לפי תחנות)")
+    
+    # Gather and sort all unique stations
+    all_stations = set()
+    for bus in nationwide_buses:
+        all_stations.update(bus["stations"])
+    all_stations = sorted(list(all_stations))
+    
+    col_origin, col_dest = st.columns(2)
+    with col_origin:
+        origin_st = st.selectbox("תחנת מוצא:", ["- בחר תחנת מוצא -"] + all_stations)
+    with col_dest:
+        dest_st = st.selectbox("תחנת יעד:", ["- בחר תחנת יעד -"] + all_stations)
+        
+    if origin_st != "- בחר תחנת מוצא -" and dest_st != "- בחר תחנת יעד -":
+        if origin_st == dest_st:
+            st.warning("תחנת המוצא והיעד זהות. אנא בחר תחנות שונות.")
+        else:
+            matching_lines = []
+            for bus in nationwide_buses:
+                if origin_st in bus["stations"] and dest_st in bus["stations"]:
+                    # Ensure the origin station comes BEFORE the destination station in the route
+                    if bus["stations"].index(origin_st) < bus["stations"].index(dest_st):
+                        matching_lines.append(bus)
+            
+            if matching_lines:
+                st.success(f"נמצאו {len(matching_lines)} קווים המחברים בין {origin_st} ל-{dest_st}:")
+                st.dataframe(format_buses_for_display(matching_lines), use_container_width=True)
+            else:
+                st.error("לא נמצא קו ישיר המחבר בין התחנות המבוקשות בכיוון זה. נסה לשנות את החיפוש.")
 
     st.divider()
-    st.subheader("⚡ סינון וחיפוש מתקדם")
+
+    # ----------------------------------------------------------------------
+    # FEATURE 2: STATION BREAKDOWN
+    # ----------------------------------------------------------------------
+    st.subheader("📍 מסלול הקו ותחנות (פירוט נסיעה)")
+    selected_bus_display = st.selectbox("בחר קו לצפייה במסלול המלא:", ["- בחר קו -"] + [b["display_name"] for b in nationwide_buses])
+    
+    if selected_bus_display != "- בחר קו -":
+        selected_bus = next((b for b in nationwide_buses if b["display_name"] == selected_bus_display), None)
+        if selected_bus:
+            st.markdown(f"#### התחנות במסלול הקו {selected_bus['display_name']}:")
+            # Render a clean, vertical step-by-step breakdown
+            for idx, station in enumerate(selected_bus["stations"]):
+                if idx == 0:
+                    st.markdown(f"🟢 **{station}** (תחנת מוצא)")
+                elif idx == len(selected_bus["stations"]) - 1:
+                    st.markdown(f"🏁 **{station}** (תחנת סיום)")
+                else:
+                    st.markdown(f"⬇️ {station}")
+
+    st.divider()
+
+    # ----------------------------------------------------------------------
+    # FEATURE 3: GLOBAL SORTING (Powered securely by C-Engine)
+    # ----------------------------------------------------------------------
+    st.subheader("🌍 כלל מסד הנתונים הארצי (סינון חכם)")
+    st.markdown(f"**מעודכן בזמן אמת: {len(nationwide_buses)} קווים זמינים בפריסה ארצית.**")
+
     sort_options = {
         "סנן לפי מרחק": "distance",
         "סנן לפי זמן נסיעה": "duration",
@@ -309,23 +486,39 @@ with tab1:
         "סנן לפי שם הקו": "name"
     }
 
-    selected_label = st.selectbox("בחר כיצד תרצה לסנן את המסלולים:", list(sort_options.keys()))
+    selected_label = st.selectbox("בחר כיצד תרצה לסנן את המסלולים במערכת:", list(sort_options.keys()))
     sort_method = sort_options[selected_label]
 
     if st.button("החל סינון חכם", type="primary", key="btn_sort"):
         with st.spinner('מחשב את המסלולים הטובים ביותר...'):
             try:
+                # SECURITY LOCK: Map our rich Python dictionaries down to strictly formatted safe dicts
+                # The 'name' key remains <= 20 bytes (UTF-8 encoded) to guarantee zero buffer overflows in the C-Engine.
+                c_safe_buses = [
+                    {
+                        "name": b["name"], 
+                        "distance": b["distance"], 
+                        "duration": b["duration"], 
+                        "frequency": b["frequency"]
+                    } for b in nationwide_buses
+                ]
+                
+                # Execute native C sorting via wrapper
                 if sort_method == "name":
-                    sorted_buses = bus_wrapper.sort_bus_lines_by_name(nationwide_buses)
+                    sorted_safe = bus_wrapper.sort_bus_lines_by_name(c_safe_buses)
                 else:
-                    sorted_buses = bus_wrapper.sort_bus_lines_by_metric(nationwide_buses, sort_method)
+                    sorted_safe = bus_wrapper.sort_bus_lines_by_metric(c_safe_buses, sort_method)
+                
+                # Map back the sorted lightweight C-objects to our rich Python dictionaries using the unique C 'name' key
+                bus_dict = {b["name"]: b for b in nationwide_buses}
+                sorted_buses = [bus_dict[s["name"]] for s in sorted_safe]
                 
                 st.success(f"התוצאות סוננו בהצלחה לפי דרישתך.")
                 st.dataframe(format_buses_for_display(sorted_buses), use_container_width=True)
                 
                 if sort_method != "name":
                     st.subheader("📊 תצוגה גרפית של הנתונים")
-                    chart_data = {bus["name"]: bus[sort_method] for bus in sorted_buses}
+                    chart_data = {bus["display_name"]: bus[sort_method] for bus in sorted_buses}
                     st.bar_chart(chart_data)
             except Exception as e:
                 st.error(f"שגיאת מערכת. אנא נסה שוב מאוחר יותר: {e}")
